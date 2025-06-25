@@ -13,7 +13,7 @@ public class Buffer {
         bufferLimit=limit;
     }
 
-    public synchronized Task consume() throws InterruptedException{
+    public synchronized Task read() throws InterruptedException{
         while (tasks.isEmpty()) {
             wait();
         }
