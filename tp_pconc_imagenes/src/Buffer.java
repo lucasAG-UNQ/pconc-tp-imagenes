@@ -1,15 +1,14 @@
-import java.util.ArrayList;
-import java.util.List;
+import java.util.ArrayDeque;
+import java.util.Queue;
 
-import Tasks.PoisonPill;
 import Tasks.Task;
 
 public class Buffer {
-    private List<Task> tasks;
+    private Queue<Task> tasks;
     private int bufferLimit;
 
     public Buffer(int limit){
-        tasks=new ArrayList<>();
+        tasks=new ArrayDeque<Task>();
         bufferLimit=limit;
     }
 
@@ -18,14 +17,14 @@ public class Buffer {
             wait();
         }
         notifyAll();
-        return tasks.removeFirst();
+        return tasks.remove();
     }
 
     public synchronized void produce(Task task) throws InterruptedException{
         while (tasks.size()==bufferLimit) {
             wait();
         }
-        tasks.addFirst(task);
+        tasks.add(task);
         notifyAll();
     }
 }
