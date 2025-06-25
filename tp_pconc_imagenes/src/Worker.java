@@ -17,6 +17,7 @@ public class Worker extends Thread {
             Task task;
             try {
                 task=buffer.read();
+                task.run();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             } catch (PoisonPillException e){
