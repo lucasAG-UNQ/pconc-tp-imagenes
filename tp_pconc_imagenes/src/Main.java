@@ -1,11 +1,45 @@
+import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
 public class Main {
     public static void main(String[] args) {
         verifyArgs(args);
+        File imagen = new File (args[0]);
+        BufferedImage bi = null;
+        try {
+            bi = ImageIO . read ( imagen );
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        WritableRaster raster = bi . getRaster ();
+        
+        raster.getNumBands();
+
+
         int bufferLimit= Integer.parseInt(args[2]);
         WorkerCounter wc= new WorkerCounter();
-        Buffer bf= new Buffer(bufferLimit);
+        ThreadPool tp= new ThreadPool(bufferLimit, wc, bufferLimit);
         
-        System.err.println("temp");
+        long startTime=System.currentTimeMillis();
+
+        Thread taskLauncher= new Thread();
+        
+
+        try {
+            wc.endMain();
+        } catch (InterruptedException e) {
+            System.out.println("Hubo un problema");
+            System.exit(1);
+        }
+
+        long endTime=System.currentTimeMillis();
+
+        System.out.println("El tiempo de ejecución fue: "+(endTime-startTime));
     }
 
     private static void verifyArgs(String[] args) {
