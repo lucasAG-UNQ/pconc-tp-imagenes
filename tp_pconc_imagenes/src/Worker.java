@@ -28,5 +28,6 @@ public class Worker extends Thread {
 
     private void kill(){
         running=false;
+        counter.removeWorker();
     }
 }
