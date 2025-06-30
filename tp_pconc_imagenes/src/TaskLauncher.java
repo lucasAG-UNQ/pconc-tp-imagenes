@@ -27,7 +27,7 @@ public class TaskLauncher extends Thread {
         for (int i = 0; i < totalWorkers; i++) {
             int xAnchor=i*columnWidth;
             int sectionWidth= (i==totalWorkers-1) ? width - xAnchor : columnWidth;
-            WritableRaster columnRaster=outputRaster.createWritableChild(xAnchor, 0, sectionWidth, height, 0, 0, null);
+            WritableRaster columnRaster=outputRaster.createWritableChild(xAnchor, 0, sectionWidth, height, xAnchor, 0, null);
             Task task= new AffineTask(srcRaster, columnRaster, transformMatrix);
             try {
                 tp.launch(task);

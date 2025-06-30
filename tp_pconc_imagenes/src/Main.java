@@ -46,7 +46,7 @@ public class Main {
         int newHeight=maxY-minY;
 
         WritableRaster raster2 = raster.createCompatibleWritableRaster (newWidth, newHeight);
-        raster2.setPixels (minX, maxY ,newWidth ,newHeight ,new double[ newWidth * newHeight * channels ]);
+        raster2.setPixels (0, 0 ,newWidth ,newHeight ,new double[ newWidth * newHeight * channels ]);
 
         int bufferLimit= Integer.parseInt(args[2]);
         int totalWorkers= Integer.parseInt(args[3]);
