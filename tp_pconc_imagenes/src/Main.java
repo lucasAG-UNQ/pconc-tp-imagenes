@@ -22,15 +22,21 @@ public class Main {
         int height = raster.getHeight();
         int channels = raster.getNumBands();
 
-        int a=Integer.parseInt(args[4]);
-        int b=Integer.parseInt(args[5]);
-        int c=Integer.parseInt(args[6]);
-        int d=Integer.parseInt(args[7]);
-        int e=Integer.parseInt(args[8]);
-        int f=Integer.parseInt(args[9]);
+        String[] stringTransformMatrix= Arrays.copyOfRange(args,4,10);
+        float[] transformMatrix= new float[stringTransformMatrix.length];
+        for (int i = 0; i < stringTransformMatrix.length; i++) {
+            transformMatrix[i]=Float.parseFloat(stringTransformMatrix[i]);
+        }
+
+        float a=transformMatrix[0];
+        float b=transformMatrix[1];
+        float c=transformMatrix[2];
+        float d=transformMatrix[3];
+        float e=transformMatrix[4];
+        float f=transformMatrix[5];
         
-        int[] xCornersValues= {(a*0)+(b*0)+c, (a*width)+(b*0)+c, (a*0)+(b*height)+c, (a*width)+(b*height)+c};
-        int[] yCornersValues= {(d*0)+(e*0)+f, (d*width)+(e*0)+f, (d*0)+(e*height)+f, (d*width)+(e*height)+f};
+        int[] xCornersValues= {(int) ((a*0)+(b*0)+c), (int) ((a*width)+(b*0)+c), (int) ((a*0)+(b*height)+c), (int) ((a*width)+(b*height)+c)};
+        int[] yCornersValues= {(int) ((d*0)+(e*0)+f), (int) ((d*width)+(e*0)+f), (int) ((d*0)+(e*height)+f), (int) ((d*width)+(e*height)+f)};
         int minX= Arrays.stream(xCornersValues).min().orElseThrow();
         int maxX= Arrays.stream(xCornersValues).max().orElseThrow();
         int minY= Arrays.stream(yCornersValues).min().orElseThrow();
@@ -39,8 +45,8 @@ public class Main {
         int newWidth=maxX-minX;
         int newHeight=maxY-minY;
 
-        WritableRaster raster2 = raster.createCompatibleWritableRaster (width, height);
-        raster2.setPixels (0, 0 ,width ,height ,new double[ width * height * channels ]);
+        WritableRaster raster2 = raster.createCompatibleWritableRaster (newWidth, newHeight);
+        raster2.setPixels (minX, maxY ,newWidth ,newHeight ,new double[ newWidth * newHeight * channels ]);
 
         int bufferLimit= Integer.parseInt(args[2]);
         int totalWorkers= Integer.parseInt(args[3]);
@@ -49,8 +55,10 @@ public class Main {
         
         long startTime=System.currentTimeMillis();
 
-        TaskLauncher taskLauncher= new TaskLauncher(tp,raster2,totalWorkers);
+        TaskLauncher taskLauncher= new TaskLauncher(tp,raster,raster2,totalWorkers,transformMatrix);
         
+        taskLauncher.start();
+
         try {
             wc.endMain();
         } catch (InterruptedException exc) {
@@ -60,10 +68,25 @@ public class Main {
 
         long endTime=System.currentTimeMillis();
 
+        BufferedImage bi_salida = new BufferedImage (
+        bi . getColorModel () , raster2 , bi . isAlphaPremultiplied () , null);
+        File outputfile = new File ( args[1] );
+        try {
+            ImageIO . write ( bi_salida , "jpg" , outputfile );
+        } catch (IOException e1) {
+            System.out.println("Hubo un problema");
+            System.exit(1);
+        }
+
         System.out.println("El tiempo de ejecución fue: "+(endTime-startTime));
     }
 
     private static void verifyArgs(String[] args) {
+        if(args.length!=10){
+            System.out.println("Debe haber 10 argumentos");
+            System.exit(1);
+        }
+
         if(args[0].isEmpty() || !args[0].endsWith(".jpg")){
             System.out.println("El primer argumento debe ser un la direccion de una imagen en formato jpg");
             System.exit(1);
@@ -90,7 +113,7 @@ public class Main {
 
         try {
             for (int i = 4; i < 10; i++) {
-                Integer.parseInt(args[i]);
+                Float.parseFloat(args[i]);
             }
         } catch (NumberFormatException e) {
             System.out.println("Los argumentos 5 a 10 deben ser la matriz de 3x2 ordenada de izquierda a derecha de arriba a abajo");
